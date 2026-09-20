@@ -1,0 +1,15 @@
+# Raw Kaggle source files (large; download instructions in data/README.md)
+data/application_record.csv
+data/credit_record.csv
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Streamlit
+.streamlit/
+
+# OS
+.DS_Store
+Thumbs.db
