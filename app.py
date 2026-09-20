@@ -4,8 +4,8 @@ Credit Card Approval Analysis and Prediction
 A beginner-friendly Streamlit app that lets a user explore the dataset
 and get a machine-learning-based Good Credit / Risky Credit prediction.
 
-Author: Ahmed
-University Data Science Project
+Author: Maniha Munawar
+Internship Project
 """
 
 import streamlit as st
@@ -19,6 +19,32 @@ st.set_page_config(
     page_title="Credit Card Approval Analysis and Prediction",
     page_icon="💳",
     layout="wide"
+)
+
+# ----------------------------------------------------------------------
+# Light custom styling on top of the theme in .streamlit/config.toml
+# ----------------------------------------------------------------------
+st.markdown(
+    """
+    <style>
+    div[data-testid="stMetric"] {
+        background-color: #F1F8F4;
+        border: 1px solid #DCEDE1;
+        border-radius: 10px;
+        padding: 14px 16px;
+    }
+    div[data-testid="stMetricValue"] {
+        color: #1B5E20;
+    }
+    section[data-testid="stSidebar"] {
+        border-right: 1px solid #E0E0E0;
+    }
+    h1, h2, h3 {
+        color: #1B5E20;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
 )
 
 # ----------------------------------------------------------------------
@@ -42,9 +68,11 @@ data = load_data()
 # ----------------------------------------------------------------------
 # Sidebar navigation
 # ----------------------------------------------------------------------
-st.sidebar.title("Navigation")
+st.sidebar.markdown("### 💳 Credit Risk App")
+st.sidebar.caption("Internship Project — Maniha Munawar")
+st.sidebar.divider()
 page = st.sidebar.radio(
-    "Go to:",
+    "Navigate to:",
     ["Home", "Data Analysis", "Prediction", "About"]
 )
 
@@ -69,7 +97,7 @@ if page == "Home":
     st.warning(
         "⚠️ **Important:** This prediction is a machine-learning "
         "classification based on a historical dataset. It is **not** a "
-        "guaranteed real-world bank approval decision. This is an academic "
+        "guaranteed real-world bank approval decision. This is an internship "
         "project, not a real credit-scoring system."
     )
 
@@ -264,7 +292,7 @@ elif page == "About":
     st.write(
         """
         **Title:** Credit Card Approval Analysis and Prediction
-        **Type:** University Data Science Project
+        **Type:** Internship Project
         **Dataset:** [Credit Card Approval Prediction — Kaggle]
         (https://www.kaggle.com/datasets/rikdifos/credit-card-approval-prediction)
         """
@@ -302,7 +330,7 @@ elif page == "About":
           class can be predicted.
         - This is a credit-risk classification proxy, not an actual bank
           approval decision.
-        - This is an academic project and should not be used for real
+        - This is an internship project and should not be used for real
           financial decision-making.
         """
     )
