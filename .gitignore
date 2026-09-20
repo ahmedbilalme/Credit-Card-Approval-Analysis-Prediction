@@ -7,8 +7,8 @@ __pycache__/
 *.pyc
 .ipynb_checkpoints/
 
-# Streamlit
-.streamlit/
+# Streamlit (keep config.toml for theming, ignore local secrets only)
+.streamlit/secrets.toml
 
 # OS
 .DS_Store
