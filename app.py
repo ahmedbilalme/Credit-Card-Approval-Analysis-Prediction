@@ -1,11 +1,15 @@
 """
 Credit Card Approval Analysis and Prediction
 ----------------------------------------------
-A beginner-friendly Streamlit app that lets a user explore the dataset
-and get a machine-learning-based Good Credit / Risky Credit prediction.
+A Streamlit app that lets a user explore the dataset and get a
+machine-learning-based Good Credit / Risky Credit prediction.
 
 Author: Maniha Munawar
 Internship Project
+
+Note on design: all styling below is done with CSS injected through
+Streamlit's supported st.markdown(unsafe_allow_html=True) mechanism.
+No JavaScript is used, keeping the project pure Python + Streamlit.
 """
 
 import streamlit as st
@@ -22,25 +26,197 @@ st.set_page_config(
 )
 
 # ----------------------------------------------------------------------
-# Light custom styling on top of the theme in .streamlit/config.toml
+# Design system: fonts, color palette, and component styling (CSS only)
 # ----------------------------------------------------------------------
 st.markdown(
     """
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+
+    :root {
+        --navy: #0F172A;
+        --navy-light: #1E293B;
+        --teal: #14B8A6;
+        --teal-dark: #0D9488;
+        --coral: #F43F5E;
+        --coral-dark: #E11D48;
+        --bg: #F8FAFC;
+        --card: #FFFFFF;
+        --border: #E2E8F0;
+        --text-muted: #64748B;
+    }
+
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
+    }
+    h1, h2, h3, h4 {
+        font-family: 'Poppins', sans-serif !important;
+        color: var(--navy) !important;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .main .block-container {
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    /* Hero banner */
+    .hero {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--teal-dark) 100%);
+        border-radius: 16px;
+        padding: 40px 36px;
+        margin-bottom: 28px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
+    }
+    .hero h1 {
+        color: #FFFFFF !important;
+        font-size: 2.1rem;
+        margin: 0 0 8px 0;
+    }
+    .hero p {
+        color: #E2E8F0;
+        font-size: 1.05rem;
+        margin: 0;
+    }
+
+    /* Stat / metric cards */
+    .stat-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px 20px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.10);
+    }
+    .stat-card .stat-value {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: var(--teal-dark);
+    }
+    .stat-card .stat-label {
+        color: var(--text-muted);
+        font-size: 0.88rem;
+        margin-top: 4px;
+    }
+
+    /* Native metric widgets (Data Analysis / Prediction pages) */
     div[data-testid="stMetric"] {
-        background-color: #F1F8F4;
-        border: 1px solid #DCEDE1;
-        border-radius: 10px;
+        background-color: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
         padding: 14px 16px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
     }
     div[data-testid="stMetricValue"] {
-        color: #1B5E20;
+        color: var(--teal-dark);
     }
+
+    /* Buttons */
+    .stButton > button, .stFormSubmitButton > button {
+        background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 0.6rem 1.4rem;
+        font-weight: 600;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+    }
+    .stButton > button:hover, .stFormSubmitButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(20, 184, 166, 0.4);
+        color: white;
+    }
+
+    /* Result badges */
+    .result-badge {
+        border-radius: 14px;
+        padding: 22px 24px;
+        text-align: center;
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 18px;
+        animation: fadeInUp 0.5s ease-out;
+    }
+    .badge-good {
+        background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+        box-shadow: 0 8px 20px rgba(20, 184, 166, 0.35);
+    }
+    .badge-risky {
+        background: linear-gradient(135deg, var(--coral) 0%, var(--coral-dark) 100%);
+        box-shadow: 0 8px 20px rgba(244, 63, 94, 0.35);
+    }
+
+    /* Probability bars */
+    .prob-row { margin-bottom: 14px; }
+    .prob-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.92rem;
+        color: var(--navy);
+        margin-bottom: 4px;
+        font-weight: 500;
+    }
+    .prob-track {
+        background: var(--border);
+        border-radius: 8px;
+        height: 12px;
+        overflow: hidden;
+    }
+    .prob-fill-good {
+        height: 100%;
+        background: linear-gradient(90deg, var(--teal) 0%, var(--teal-dark) 100%);
+        border-radius: 8px;
+    }
+    .prob-fill-risky {
+        height: 100%;
+        background: linear-gradient(90deg, var(--coral) 0%, var(--coral-dark) 100%);
+        border-radius: 8px;
+    }
+
+    /* Images (charts) */
+    div[data-testid="stImage"] img {
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+    }
+
+    /* Sidebar */
     section[data-testid="stSidebar"] {
-        border-right: 1px solid #E0E0E0;
+        background-color: var(--navy);
+        border-right: 1px solid var(--border);
     }
-    h1, h2, h3 {
-        color: #1B5E20;
+    section[data-testid="stSidebar"] * {
+        color: #F1F5F9 !important;
+    }
+    section[data-testid="stSidebar"] .brand {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        background: linear-gradient(90deg, #5EEAD4, #2DD4BF);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 2px;
+    }
+    div[role="radiogroup"] label {
+        background: var(--navy-light);
+        border-radius: 8px;
+        padding: 6px 10px;
+        margin-bottom: 4px;
+        transition: background 0.15s ease;
+    }
+    div[role="radiogroup"] label:hover {
+        background: #334155;
     }
     </style>
     """,
@@ -68,7 +244,7 @@ data = load_data()
 # ----------------------------------------------------------------------
 # Sidebar navigation
 # ----------------------------------------------------------------------
-st.sidebar.markdown("### 💳 Credit Risk App")
+st.sidebar.markdown('<div class="brand">💳 CreditIQ</div>', unsafe_allow_html=True)
 st.sidebar.caption("Internship Project — Maniha Munawar")
 st.sidebar.divider()
 page = st.sidebar.radio(
@@ -80,8 +256,16 @@ page = st.sidebar.radio(
 # PAGE 1: HOME
 # ========================================================================
 if page == "Home":
-    st.title("💳 Credit Card Approval Analysis and Prediction")
-    st.markdown("### A Data Science & Machine Learning Project")
+    st.markdown(
+        """
+        <div class="hero">
+            <h1>💳 Credit Card Approval Analysis and Prediction</h1>
+            <p>An internship data science project that classifies applicants
+            as Good Credit or Risky Credit using machine learning.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     st.write(
         """
@@ -113,13 +297,32 @@ if page == "Home":
 
     st.subheader("Dataset Information")
     col1, col2, col3 = st.columns(3)
-    col1.metric("Total Applicants Analyzed", f"{data.shape[0]:,}")
-    col2.metric("Features Used", f"{data.shape[1] - 1}")
-    col3.metric(
-        "Risky Credit Rate",
-        f"{(data['TARGET'].mean() * 100):.2f}%"
-    )
+    with col1:
+        st.markdown(
+            f"""<div class="stat-card">
+                    <div class="stat-value">{data.shape[0]:,}</div>
+                    <div class="stat-label">Total Applicants Analyzed</div>
+                </div>""",
+            unsafe_allow_html=True
+        )
+    with col2:
+        st.markdown(
+            f"""<div class="stat-card">
+                    <div class="stat-value">{data.shape[1] - 1}</div>
+                    <div class="stat-label">Features Used</div>
+                </div>""",
+            unsafe_allow_html=True
+        )
+    with col3:
+        st.markdown(
+            f"""<div class="stat-card">
+                    <div class="stat-value">{data['TARGET'].mean() * 100:.2f}%</div>
+                    <div class="stat-label">Risky Credit Rate</div>
+                </div>""",
+            unsafe_allow_html=True
+        )
 
+    st.write("")
     st.write(
         """
         **Source:** [Credit Card Approval Prediction — Kaggle]
@@ -264,17 +467,35 @@ elif page == "Prediction":
 
         prediction = model.predict(input_df)[0]
         probability = model.predict_proba(input_df)[0]
+        good_pct = probability[0] * 100
+        risky_pct = probability[1] * 100
 
         st.subheader("Prediction Result")
 
         if prediction == 0:
-            st.success("✅ Good Credit Profile")
+            st.markdown(
+                '<div class="result-badge badge-good">✅ Good Credit Profile</div>',
+                unsafe_allow_html=True
+            )
         else:
-            st.error("⚠️ Risky Credit Profile")
+            st.markdown(
+                '<div class="result-badge badge-risky">⚠️ Risky Credit Profile</div>',
+                unsafe_allow_html=True
+            )
 
-        col1, col2 = st.columns(2)
-        col1.metric("Model-Estimated P(Good Credit)", f"{probability[0]*100:.1f}%")
-        col2.metric("Model-Estimated P(Risky Credit)", f"{probability[1]*100:.1f}%")
+        st.markdown(
+            f"""
+            <div class="prob-row">
+                <div class="prob-label"><span>Model-Estimated P(Good Credit)</span><span>{good_pct:.1f}%</span></div>
+                <div class="prob-track"><div class="prob-fill-good" style="width:{good_pct}%;"></div></div>
+            </div>
+            <div class="prob-row">
+                <div class="prob-label"><span>Model-Estimated P(Risky Credit)</span><span>{risky_pct:.1f}%</span></div>
+                <div class="prob-track"><div class="prob-fill-risky" style="width:{risky_pct}%;"></div></div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
         st.caption(
             "These are model-estimated probabilities based on historical "
@@ -306,7 +527,7 @@ elif page == "About":
         - Matplotlib & Seaborn — visualization
         - Scikit-learn — preprocessing and machine learning
         - Joblib — model persistence
-        - Streamlit — web application interface
+        - Streamlit — web application interface (styled with custom CSS)
         """
     )
 
