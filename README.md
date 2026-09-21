@@ -243,8 +243,26 @@ confusion matrix computed for all three models on the real test set.
 
 ## 14. Screenshots
 
-*(To be added: Home page, Data Analysis page, Prediction form, Prediction
-result, About page, and the live deployed app in the browser.)*
+**Home Page**
+![Home Page](screenshots/ss/Screenshot%202026-09-21%20111827.png)
+
+**Data Analysis — Summary Statistics & Target Distribution**
+![Data Analysis 1](screenshots/ss/Screenshot%202026-09-21%20111941.png)
+
+**Data Analysis — Age & Income Distribution**
+![Data Analysis 2](screenshots/ss/Screenshot%202026-09-21%20112021.png)
+
+**Data Analysis — Income Type & Housing Type Distribution**
+![Data Analysis 3](screenshots/ss/Screenshot%202026-09-21%20112112.png)
+
+**Prediction Form & Good Credit Result**
+![Prediction Good Credit](screenshots/ss/Screenshot%202026-09-21%20112332.png)
+
+**Prediction Form & Risky Credit Result**
+![Prediction Risky Credit](screenshots/ss/Screenshot%202026-09-21%20113031.png)
+
+**About Page**
+![About Page](screenshots/ss/Screenshot%202026-09-21%20113100.png)
 
 ## 15. System Architecture
 
